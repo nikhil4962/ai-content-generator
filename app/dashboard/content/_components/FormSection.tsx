@@ -43,9 +43,15 @@ function FormSection({ selectedTemplate ,userFormInput, loading }: PROPS) {
                              onChange={handleInputChange}
                             />
                             : item.field == 'textarea' ?
+                            <>
                                 <Textarea name={item.name} required={item?.required}
-                                onChange={handleInputChange} /> : null
-                        }
+                                 rows={5}
+                                 maxLength={2000}
+                                onChange={handleInputChange} /> 
+                                 <label className='text-xs text-gray-400'>Note:Max 2000 Words</label>
+                                
+                                </>    : null
+                         }           
                     </div>
                 ))}
                 <Button type="submit" className='w-full py-6'
@@ -58,4 +64,4 @@ function FormSection({ selectedTemplate ,userFormInput, loading }: PROPS) {
     )
 }
 
-export default FormSection;
+export default FormSection

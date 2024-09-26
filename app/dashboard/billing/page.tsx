@@ -14,6 +14,7 @@ function billing() {
   const [loading,setLoading]=useState(false);
   const {user}=useUser();
   const {UserSubscription,setUserSubscription}=useContext(UserSubscriptionContext);
+
   const CreateSubscription=()=>{
     setLoading(true)
     axio.post('/api/create-subscription',{})
@@ -24,8 +25,30 @@ function billing() {
       setLoading(false);
     })
   }
+     
+  const loadScript = (src:any) => {
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = src;
+      script.onload = () => {
+        resolve(true);
+      };
+      script.onerror = () => {
+        resolve(false);
+      };
+      document.body.appendChild(script);
+    });
+  };
 
-     const OnPayment=(subId:string)=>{
+     const OnPayment=async(subId:string)=>{
+      const  res = await loadScript(
+        "https://checkout.razorpay.com/v1/checkout.js"
+     );
+  
+     if (!res) {
+        alert("Razropay failed to load!!");
+        return;
+    }
          const options={
           "key":process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
           "subscription_id":subId,
@@ -38,12 +61,20 @@ function billing() {
             {
               SaveSubscription(resp?.razorpay_payment_id)
             }
+            setLoading(false);
           }
          }
          
+         try{
           //@ts-ignore
          const rzp=new window.Razorpay(options);
          rzp.open();
+         }
+         catch(e)
+         {
+             console.log("Try Again...",e);
+             setLoading(false);
+         }
      }
 
         const SaveSubscription=async(paymentId:string)=>{
@@ -65,12 +96,12 @@ function billing() {
   return (
     <div>
       <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-      <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8"></div>
-      <h2 className='text-center font-bold text-3xl my-3'>Upgrade with Monthly subscription</h2>
+      <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+      <h2 className='text-center font-bold text-3xl my-3'>Upgrade with Monthly Plan</h2>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:items-center md:group-[]:"></div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:items-center md:gap-8">
 
-      <div className="rounded-2xl bg-white border border-gray-200 p-6 shadow-sm"></div>
+      <div className="rounded-2xl bg-white border border-gray-200 p-6 shadow-sm sm:px-8 lg:p-12">
       <div className="text-center">
         <h2 className="text-lg font-medium text-gray-900">
           Free 
@@ -78,7 +109,7 @@ function billing() {
         </h2>
 
         <p className="mt-2 sm:mt-4">
-          <strong className="text-lg font-bold text-gray-900 sm:text"></strong>
+          <strong className="text-lg font-bold text-gray-900 sm:text-4xl"> 0$</strong>
 
             <span className="text-3xl font-medium text-gray-700">/monthly</span>
         </p>
@@ -94,7 +125,7 @@ function billing() {
           stroke="currentColor"
           className="size-5 text-indigo-700"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5"></path>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5  12.75l6 6 9-13.5"></path>
             </svg>
 
             <span className="text-gray-700"> 10,000 Words/Month</span>
@@ -108,7 +139,7 @@ function billing() {
           strokeWidth="currentColor"
           className="size-5 text-indigo-700"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5"></path>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5  12.75l6 6 9-13.5"></path>
           </svg>
 
           <span className="text-gray-700">50 + Content Template</span>
@@ -123,10 +154,10 @@ function billing() {
           stroke="currentColor"
           className="size-5 text-indigo-700"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5"></path>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5  12.75l6 6 9-13.5"></path>
           </svg>
 
-          <span className="text-gray-700">50+ Content Templates</span>
+          <span className="text-gray-700"> Unlimted Download & Copy</span>
         </li>
 
         <li className="flex items-center gap-1">
@@ -138,14 +169,14 @@ function billing() {
           stroke="currentColor"
           className="size-5 text-indigo-700"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5"></path>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5"></path>
           </svg>
 
-          <span className="text-gray-700"> Unlimited Download & Copy the content </span>
+          <span className="text-gray-700"> 1 Month of History </span>
         </li>
       </ul>
 
-      <a
+     {/* <a
        href="#"
        className="mt-8 block rounded-full
         border border-indigo-600
@@ -153,9 +184,10 @@ function billing() {
         hover:ring-1 hover:ring-indigo-600 focus:outline-none focus:outline-dashed"
         >
           Currently Active plan
-        </a>
+        </a> */}
+      </div>
        
-        <div className="rounded-2xl bg-white border border-gray-200 p-3"></div>
+        <div className="rounded-2xl bg-white border border-gray-200 p-6 shadow-sm sm:px-8 lg:p-12">
         <div className="text-center">
           <h2 className="text-lg font-medium text-gray-900">
              Monthly  
@@ -163,9 +195,10 @@ function billing() {
           </h2>
 
           <p className="mt-2 sm:mt-4">
-            <strong className="text-3xl font-bold text-gray-900 sm:text-wrap"></strong>
+            <strong className="text-3xl font-bold text-gray-900 sm:text-4xl"> 9.99$ </strong>
+            
 
-            <span className="text-sm font-medium text-gray-700">/monthly</span>
+            <span className="text-sm font-medium text-gray-700">/month</span>
           </p>
         </div>
 
@@ -179,7 +212,7 @@ function billing() {
              stroke="currentColor"
              className="size-5 text-indigo-700"
              >
-               <path strokeLinecap="round" strokeLinejoin="round" d="M4.5"></path>
+               <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5"></path>
              </svg>
 
              <span className="text-gray-700"> 1,00,000 Words/Month </span>
@@ -194,7 +227,7 @@ function billing() {
             stroke="currentColor"
             className="size-5 text-indigo-700"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5"></path>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5"></path>
             </svg>
 
             <span className="text-gray-700"> 50+ Template Access </span>
@@ -209,10 +242,10 @@ function billing() {
              stroke="currentColor"
              className="size-5 text-indigo-700"
              >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5"></path>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5"></path>
              </svg>
 
-             <span className="text-gray-700">50+ Template Access </span>
+             <span className="text-gray-700"> Unlimated Download & Copy </span>
           </li>
 
           <li className="flex items-center gap-1">
@@ -224,24 +257,26 @@ function billing() {
              stroke="currentColor"
              className="size-5 text-indigo-700"
              >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5"></path>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5"></path>
              </svg>
 
              <span className="text-gray-700"> 1 Year of History  </span>
           </li>
         </ul>
 
-        <button
+        <Button
         disabled={loading}
          onClick={()=>CreateSubscription()}
-         className="mt-8 w-full rounded-full text-center flex gap-2 border border-indigo-600
-         bg-white px-12 py-3  text-sm font-medium text-indigo-700"
+          className='w-full rounded-full mt-5 p-6'
+        variant='outline'
          >
           {loading&&<Loader2Icon className='animate-spin'/>}
           {UserSubscription?'Active Plan': 'Get Started'}
-         </button>
+         </Button>
+     </div>
     </div>
-     
+  </div>
+        </div>   
   )
 }
 
